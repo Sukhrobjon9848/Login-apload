@@ -1,44 +1,36 @@
-import fs from 'fs'
-import path from 'path'
-
-export default class{
-    constructor(req,res){
-        this.req=req
-        this.res=res
+'use strict'
+import http from 'http'
+import url from 'url';
+import  qs from 'querystring';
+   const hendler={}
+   
+function Server(req,res){
+     req.query=qs.parse(url.parse(req.url).query)
+     res.json= function (data) {
+        res.setHeader("Content-Type","application/json")
+        return res.end(JSON.stringify(data))
+     }
+    let urlname=url.parse(req.url).pathname.toLowerCase()
+    let method= req.method.toUpperCase()
+    if(hendler[urlname]){
+        return hendler[urlname][method](req,res)
+    }
+    else{
+        res.end("Not Found")
     }
 
-    get(route,callback){
-        if(this.req.url==route && this.req.method=="GET"){
-            return callback(this.req,this.res)
-        }
-    }
+} 
 
-    engine(pathname){
-        this.res.setHeader("Content-Type","text/html")
-            return this.res.end(
-                fs.readFileSync(path.join(process.cwd(),'src','views',`${pathname}.html`))
-                
-            )
+export default class {
+  constructor(){
+    this.server=http.createServer(Server)
+    this.get=function(path,callbackHendler){
+        hendler[path.toLowerCase()]=hendler[path.toLowerCase()] || {}
+        hendler[path.toLowerCase()]["GET"]=callbackHendler
     }
-    engineCss(pathname){
-        this.res.setHeader("Content-Type","text/css")
-            return this.res.end(
-                fs.readFileSync(path.join(process.cwd(),'src','public','css',`${pathname}.css`))
-                
-            )
+    this.listen= function(PORT,callback){
+        this.server.listen(PORT,callback)
     }
-    engineImg(pathname){
-        this.res.setHeader("Content-Type","image/svg+xml")
-            return this.res.end(
-                fs.readFileSync(path.join(process.cwd(),'src','images',`${pathname}.svg`))
-                
-            )
-    }
-    engineImgs(pathname){
-        this.res.setHeader("Content-Type","image/png")
-            return this.res.end(
-                fs.readFileSync(path.join(process.cwd(),'src','images',`${pathname}.png`))
-                
-            )
-    }
+}
+    
 }
