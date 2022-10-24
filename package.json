@@ -6,7 +6,7 @@
 	"main": "server.js",
 	"scripts": {
 		"start": "node src/server.js",
-		"dev": "nodemon test.js"
+		"dev": "nodemon Express/server.js"
 	},
 	"keywords": [],
 	"author": "Egamberdiyev Suhrobjon",
